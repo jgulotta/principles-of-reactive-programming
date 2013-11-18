@@ -5,3 +5,5 @@ target
 .idea
 .project
 .settings
+.idea_modules
+atlassian-ide-plugin.xml
