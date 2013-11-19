@@ -5,7 +5,7 @@ class Wire {
   private var actions: List[Simulator#Action] = List()
 
   def signal: Boolean = sigVal
-  
+
   def signal_=(s: Boolean) {
     if (s != sigVal) {
       sigVal = s
@@ -16,6 +16,14 @@ class Wire {
   def addAction(a: Simulator#Action) {
     actions = a :: actions
     a()
+  }
+
+  override def toString = sigVal.toString
+  override def equals(o: Any): Boolean = {
+    o match {
+      case w: Wire => w.sigVal == sigVal
+      case _ => false
+    }
   }
 }
 
@@ -28,7 +36,7 @@ abstract class CircuitSimulator extends Simulator {
     wire addAction {
       () => afterDelay(0) {
         println(
-          "  " + currentTime + ": " + name + " -> " +  wire.signal)
+          "  " + currentTime + ": " + name + " -> " + wire.signal)
       }
     }
   }
@@ -36,7 +44,9 @@ abstract class CircuitSimulator extends Simulator {
   def inverter(input: Wire, output: Wire) {
     def invertAction() {
       val inputSig = input.signal
-      afterDelay(InverterDelay) { output.signal = !inputSig }
+      afterDelay(InverterDelay) {
+        output.signal = !inputSig
+      }
     }
     input addAction invertAction
   }
@@ -45,7 +55,9 @@ abstract class CircuitSimulator extends Simulator {
     def andAction() {
       val a1Sig = a1.signal
       val a2Sig = a2.signal
-      afterDelay(AndGateDelay) { output.signal = a1Sig & a2Sig }
+      afterDelay(AndGateDelay) {
+        output.signal = a1Sig & a2Sig
+      }
     }
     a1 addAction andAction
     a2 addAction andAction
@@ -55,12 +67,14 @@ abstract class CircuitSimulator extends Simulator {
     def orAction() {
       val a1Sig = a1.signal
       val a2Sig = a2.signal
-      afterDelay(OrGateDelay) { output.signal = a1Sig | a2Sig }
+      afterDelay(OrGateDelay) {
+        output.signal = a1Sig | a2Sig
+      }
     }
     a1 addAction orAction
     a2 addAction orAction
   }
-  
+
   def orGate2(a1: Wire, a2: Wire, output: Wire) {
     val a1n, a2n, a1n_a2n = new Wire
     inverter(a1, a1n)
@@ -70,7 +84,18 @@ abstract class CircuitSimulator extends Simulator {
   }
 
   def demux(in: Wire, c: List[Wire], out: List[Wire]) {
-    ???
+    def rec_demux(s: List[Wire], d: List[Wire]) {
+      if (s.isEmpty) d(0).signal = in.signal
+      else if (s.size == 1) {
+        val w = s(0)
+        val wn = new Wire
+        inverter(w, wn)
+        andGate(in, wn, d(0))
+        andGate(in, w, d(1))
+      } else rec_demux(s.tail, d.dropRight(2))
+    }
+
+    rec_demux(c, out)
   }
 }
 
