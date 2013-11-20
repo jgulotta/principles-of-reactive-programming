@@ -85,18 +85,19 @@ class CircuitSuite extends CircuitSimulator with FunSuite {
     val in = new Wire
     val s = List.empty[Wire]
     val d = List(new Wire)
+    val e = new Wire
+    val expected = List(e)
 
     demux(in, s, d)
     run
 
-    assert(d === List(new Wire))
+    assert(d === expected)
 
     in.signal = true
     run
 
-    val expected = new Wire
-    expected.signal = true
+    e.signal = true
 
-    assert(d === List(expected))
+    assert(d === expected)
   }
 }

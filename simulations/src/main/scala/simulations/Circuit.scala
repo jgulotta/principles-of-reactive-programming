@@ -1,5 +1,10 @@
 package simulations
 
+object Wire {
+  val ground = new Wire
+  val power = new Wire; power.signal = true
+}
+
 class Wire {
   private var sigVal = false
   private var actions: List[Simulator#Action] = List()
@@ -30,6 +35,8 @@ class Wire {
 }
 
 abstract class CircuitSimulator extends Simulator {
+  import Wire._
+
   val InverterDelay: Int
   val AndGateDelay: Int
   val OrGateDelay: Int
@@ -87,7 +94,7 @@ abstract class CircuitSimulator extends Simulator {
 
   def demux(in: Wire, c: List[Wire], out: List[Wire]) {
     def rec_demux(s: List[Wire], d: List[Wire]) {
-      if (s.isEmpty) d(0).signal = in.signal
+      if (s.isEmpty) orGate(ground, in, d(0))
       else if (s.size == 1) {
         val w = s(0)
         val wn = new Wire
