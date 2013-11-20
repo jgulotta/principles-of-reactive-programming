@@ -5,13 +5,15 @@ class Wire {
   private var actions: List[Simulator#Action] = List()
 
   def signal: Boolean = sigVal
-
+  def getSignal = signal
+  
   def signal_=(s: Boolean) {
     if (s != sigVal) {
       sigVal = s
       actions.foreach(action => action())
     }
   }
+  def setSignal(s: Boolean) = signal = s
 
   def addAction(a: Simulator#Action) {
     actions = a :: actions
