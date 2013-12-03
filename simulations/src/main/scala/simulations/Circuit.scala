@@ -93,7 +93,7 @@ abstract class CircuitSimulator extends Simulator {
   }
 
   def demux(in: Wire, c: List[Wire], out: List[Wire]) {
-    def rec_demux(s: List[Wire], d: List[Wire]) {
+    def rec_demux(i: Int, s: List[Wire], d: List[Wire]) {
       if (s.isEmpty) orGate(ground, in, d(0))
       else if (s.size == 1) {
         val w = s(0)
@@ -101,10 +101,10 @@ abstract class CircuitSimulator extends Simulator {
         inverter(w, wn)
         andGate(in, wn, d(0))
         andGate(in, w, d(1))
-      } else rec_demux(s.tail, d.dropRight(2))
+      } else rec_demux(i + 1, s.tail, d.dropRight(math.pow(2, i).toInt))
     }
 
-    rec_demux(c, out)
+    rec_demux(1, c, out)
   }
 }
 
